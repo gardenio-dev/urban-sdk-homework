@@ -1,0 +1,26 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Current File (Debug)",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "justMyCode": false,
+            "envFile": "${workspaceFolder}/.env",
+        },
+        {
+            "name": "Command Line. (Debug)",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "cli.py",
+            "console": "integratedTerminal",
+            "args": "--version",
+            "cwd": "${workspaceFolder}",
+            "envFile": "${workspaceFolder}/.env",
+            "justMyCode": false
+        },
+    ]
+}

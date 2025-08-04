@@ -1,0 +1,39 @@
+set shell := ["bash", "-uc"]
+set dotenv-load
+
+# Build the image.
+build:
+    #!/usr/bin/env bash
+    set -aeo pipefail
+    source .env
+    version=$(cat .version)
+    python=${PYTHON:=$(cat ../../.python-version)}
+    echo $python
+    hash=$(git rev-parse --short HEAD)
+    REPO=${REPO:="io"}
+    echo "image:   ${IMAGE}"
+    echo "version: ${version}"
+    echo "hash:    ${hash}"
+    echo "repo:    ${REPO}"
+    docker build \
+        -t ${IMAGE} \
+        --build-arg ARROW=${ARROW} \
+        --build-arg GDAL=${GDAL} \
+        --build-arg PROJ=${PROJ} \
+        --build-arg UBUNTU=${UBUNTU} \
+        --build-arg PYTHON=${PYTHON} \
+        --progress=${PROGRESS:-plain} \
+        ${DOCKER_BUILD_ARGS} \
+        .
+    docker tag ${IMAGE} "${REPO}/${IMAGE}:${version}"
+    docker tag ${IMAGE} "${REPO}/${IMAGE}:${version}.${hash}"
+    docker tag ${IMAGE} "${REPO}/${IMAGE}:latest"
+
+# Run docker-compose to bring up the container.
+up:
+    #!/usr/bin/env bash
+    set -aeo pipefail
+    source .env
+    REPO=${REPO:="io"}
+    group=${COMPOSE_PROJECT_NAME:=${IMAGE}}
+    docker compose -p "${group}" up -d
