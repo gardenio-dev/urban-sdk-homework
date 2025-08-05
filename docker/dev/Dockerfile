@@ -1,19 +1,24 @@
 ARG DEBIAN_FRONTEND=noninteractive
 ARG BASE=ubuntu:latest
+ARG PROJECT=urban-sdk-homework
 FROM ${BASE} AS build
 SHELL ["/bin/bash", "-c"]
 
 USER root
 # Update the distribution.
 RUN apt-get update -y
-# Install build dependencies.
-RUN DEBIAN_FRONTEND=noninteractive && \
-    apt-get install curl
 
 # Install dev dependencies.
 RUN DEBIAN_FRONTEND=noninteractive && apt-get install -y \
+    curl \
     jq \
+    sudo \
     vim
+
+# Configure sudo for the non-root user.
+RUN usermod -aG sudo ${NONROOT} && \
+    echo "${NONROOT} ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers.d/${NONROOT} && \
+    chmod 0440 /etc/sudoers.d/${NONROOT}
 
 # Install development tools.
 USER ${NONROOT}

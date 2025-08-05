@@ -31,8 +31,14 @@ RUN DEBIAN_FRONTEND=noninteractive \
     llvm-15 \
     make \
     openssh-client \
+    software-properties-common \
     tk-dev \
     zlib1g-dev
+
+# Install latest GDAL from UbuntuGIS PPA.
+RUN add-apt-repository ppa:ubuntugis/ppa && \
+    apt-get update && \
+    apt-get install -y gdal-bin libgdal-dev
 
 # Create the non-root user.
 ENV NONROOT=nonroot

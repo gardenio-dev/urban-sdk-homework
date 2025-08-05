@@ -11,7 +11,7 @@ from urban_sdk_homework.modules.traffic.services import TrafficService
 @multi_tenant
 @pass_context
 def traffic(ctx, tenant: str):
-    """traffic subcommands."""
+    """Traffic subcommands."""
     ctx.obj = TrafficService.connect(tenant=tenant)
 
 

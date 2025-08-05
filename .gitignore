@@ -8,3 +8,13 @@ wheels/
 
 # Virtual environments
 .venv
+
+# Large data files.
+*.parquet
+*.parquet.gz
+
+# MacOS
+.DS_Store
+
+# Project temporary files.
+temp/

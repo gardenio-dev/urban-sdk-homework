@@ -2,6 +2,7 @@ from functools import lru_cache
 
 from fastapi import FastAPI
 from fastapi.concurrency import asynccontextmanager
+from fastapi.responses import RedirectResponse
 from starlette.middleware.cors import CORSMiddleware
 
 from urban_sdk_homework.core.fastapi import APIRouter
@@ -31,6 +32,12 @@ app.add_middleware(CORSMiddleware, **settings().cors.model_dump())
 # Get all of the available routers and add them to the app.
 for router in APIRouter.instances(condition=lambda r: r.enabled):
     app.include_router(router)
+
+
+@app.get("/", include_in_schema=False)
+async def root():
+    """Redirect to OpenAPI documentation."""
+    return RedirectResponse(url="/openapi")
 
 
 @asynccontextmanager
