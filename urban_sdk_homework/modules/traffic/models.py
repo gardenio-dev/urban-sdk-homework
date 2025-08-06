@@ -3,8 +3,9 @@ from datetime import datetime
 from enum import Enum, IntEnum
 from functools import lru_cache
 from geoalchemy2 import Geometry
+from pydantic import ConfigDict
 from sqlmodel import Field, SQLModel
-from typing import Optional
+from typing import List, Optional
 
 from urban_sdk_homework.core.geometry import geojson
 from urban_sdk_homework.core.models import BaseModel
@@ -88,4 +89,40 @@ class SpeedRecord(TrafficSQLModel, table=True):
         default=None,
         description="Indicates when this record was created.",
         index=True,
+    )
+
+
+class SpatialFilterParams(BaseModel):
+    """Request model for spatial filtering."""
+    
+    model_config = ConfigDict(
+        json_schema_extra={
+            "example": {
+                "day": 2,
+                "period": 7,
+                "bbox": [-81.8, 30.1, -81.6, 30.3]
+            }
+        }
+    )
+    
+    day: int = Field(
+        description="Day of the week",
+        # example=2,
+        ge=1,
+        le=7,
+        title="Day of Week"
+    )
+    period: int = Field(
+        description="Time period",
+        # example=7,
+        ge=1,
+        le=7,
+        title="Time Period"
+    )
+    bbox: List[float] = Field(
+        description="Bounding box to filter links (minx, miny, maxx, maxy)",
+        # example=[-81.8, 30.1, -81.6, 30.3],
+        title="Bounding Box",
+        min_length=4,
+        max_length=4,
     )

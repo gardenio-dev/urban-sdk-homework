@@ -3,7 +3,7 @@ from fastapi import Depends, Query
 
 from fastapi import Path
 from urban_sdk_homework.core.fastapi import APIRouter
-from urban_sdk_homework.modules.traffic.models import Link, SpeedRecord
+from urban_sdk_homework.modules.traffic.models import Link, SpatialFilterParams, SpeedRecord
 from urban_sdk_homework.modules.traffic.api.dependencies import service
 
 # Note to the Future:  Since these traffic endpoints are currently our
@@ -61,44 +61,6 @@ def aggregates(
 
 
 @router.get(
-    "/aggregates/spatial_filter/",
-    name="get-aggregates-spatial-filter",
-    response_model=List[Link],
-    response_model_exclude_unset=True
-)
-def get_links_within_bbox(
-    day: int = Query(
-        description="Day of the week",
-        example=2,
-        ge=1,
-        le=7,
-        title="Day of Week"
-    ),
-    period: int = Query(
-        description="Time period",
-        example=7,
-        ge=1,
-        le=7,
-        title="Time Period"
-    ),
-    bbox: List[float] = Query(
-        ...,
-        description="Bounding box to filter links (minx, miny, maxx, maxy)",
-        example=[-81.8, 30.1, -81.6, 30.3],
-        title="Bounding Box",
-        min_length=4,
-        max_length=4
-    ),
-    service=Depends(service)
-) -> List[Link]:
-    """
-    Get the aggregated speed per link for the given day and time period
-    within a specified bounding box.
-    """
-    return service.get_links(bbox=bbox)
-
-
-@router.get(
     "/aggregates/{link_id}",
     name="get-aggregates-by-link",
     response_model=SpeedRecord,
@@ -130,11 +92,12 @@ def aggregates_by_link(
     """
     Get the aggregated speed per link for the given day and time period.
     """
+    # TODO: Handle IndexError if link_id is not found.
     return service.get_aggregates(
         link_id=link_id,
         day=day,
         period=period
-    )[0]  # Return the first result, as we expect only one.
+    )[0]
 
 
 @router.get(
@@ -160,7 +123,7 @@ def get_slow_links(
     min_days: int = Query(
         description=(
             "Minimum number of days the link must be below the threshold to "
-            "be considered consistently slow"
+            "be considered consistently slo."
         ),
         example=3,
         ge=1,
@@ -176,3 +139,47 @@ def get_slow_links(
         threshold=threshold,
         min_days=min_days
     )
+
+
+@router.post(
+    "/aggregates/spatial_filter/",
+    name="get-aggregates-spatial-filter",
+    response_model=List[Link],
+    response_model_exclude_unset=True
+)
+def get_aggregates_spatial_filter(
+    # day: int = Query(
+    #     description="Day of the week",
+    #     example=2,
+    #     ge=1,
+    #     le=7,
+    #     title="Day of Week"
+    # ),
+    # period: int = Query(
+    #     description="Time period",
+    #     example=7,
+    #     ge=1,
+    #     le=7,
+    #     title="Time Period"
+    # ),
+    # bbox: List[float] = Query(
+    #     ...,
+    #     description="Bounding box to filter links (minx, miny, maxx, maxy)",
+    #     example=[-81.8, 30.1, -81.6, 30.3],
+    #     title="Bounding Box",
+    #     min_length=4,
+    #     max_length=4,
+    # ),
+    params: SpatialFilterParams,
+    service=Depends(service)
+) -> List[Link]:
+    """
+    Get the aggregated speed per link for the given day and time period
+    within a specified bounding box.
+    """
+    return service.get_links(
+        bbox=params.bbox,
+        day=params.day,
+        period=params.period
+    )
+

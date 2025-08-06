@@ -94,6 +94,8 @@ class TrafficService(Service):
         self,
         link_id: int = None,
         bbox: Tuple[float, float, float, float] = None,
+        day: int = None,
+        period: int = None,
         offset: int = 0,
         limit: int = 10
     ) -> Tuple[Link, ...]:
@@ -125,6 +127,16 @@ class TrafficService(Service):
                 statement = statement.where(
                     func.ST_Intersects(Link.geom, bbox_geom)
                 )
+            # If day and period are provided, join the SpeedRecord table
+            # to filter links based on speed records.
+            if day is not None and period is not None:
+                statement = statement.join(
+                    SpeedRecord,
+                    SpeedRecord.link_id == Link.link_id
+                ).where(
+                    SpeedRecord.day_of_week == day,
+                    SpeedRecord.period == period
+                )
             # Add ordering, offset, and limit to the query.
             statement = statement.order_by(
                 Link.link_id
@@ -152,7 +164,7 @@ class TrafficService(Service):
                     )
                 ) for row in result
             )
-    
+
     def get_slow_links(
         self,
         period: int,
