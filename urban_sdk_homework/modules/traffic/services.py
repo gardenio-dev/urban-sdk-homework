@@ -68,10 +68,10 @@ class TrafficService(Service):
             # GeoJSON and we convert it to a `LineString`.  We can do this
             # automatically to prevent repetitive code.
             statement = select(
-                Link.fid,
+                Link.link_id,
                 Link.road_name,
                 func.ST_AsGeoJSON(Link.geom).label('geom_as_geojson')
-            ).where(Link.fid == link_id)
+            ).where(Link.link_id == link_id)
             
             result = session.exec(statement).first()
             if result is None:
@@ -86,7 +86,7 @@ class TrafficService(Service):
 
             # Create Link object manually (not bound to session)
             link = Link(
-                fid=result.fid,
+                link_id=result.link_id,
                 road_name=result.road_name,
                 geom=geojson.LineString.model_validate(geojson_obj)
             )

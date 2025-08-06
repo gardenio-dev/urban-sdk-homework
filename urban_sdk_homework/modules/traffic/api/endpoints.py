@@ -20,6 +20,7 @@ def hello(service=Depends(service)) -> TrafficHello:
     """Get a friendly greeting from traffic."""
     return service.say_hello()
 
+
 @router.get(
     "/link/{link_id}",
     name="get-link",
@@ -33,6 +34,7 @@ def link(
     Get the aggregated speed per link for the given day and time period.
     """
     return service.get_link(link_id=link_id)
+
 
 @router.get(
     "/aggregates/",

@@ -56,7 +56,7 @@ class Link(TrafficSQLModel, table=True):
     """A link in the traffic network."""
     __tablename__ = "links"
 
-    fid: int | None = Field(default=None, primary_key=True)
+    link_id: int | None = Field(default=None, primary_key=True)
     road_name: str | None = Field(
         default=None,
         description="This is the name of the road to which this link belongs."
@@ -66,3 +66,24 @@ class Link(TrafficSQLModel, table=True):
         sa_type=Geometry("LineString", 4326),
     )
 
+
+class LinkAggs(TrafficSQLModel, table=True):
+    """Aggregated traffic counts for links."""
+    __tablename__ = "link_aggs"
+
+    id: int | None = Field(default=None, primary_key=True)
+    link_id: int = Field(
+        description="The ID of the link to which this traffic count belongs.",
+        foreign_key="traffic.links.link_id",
+        index=True,
+    )
+    day_of_week: DayOfWeek = Field(
+        description="The day of the week for this traffic count.",
+        #sa_column_kwargs={"type_": "SMALLINT"},
+        index=True,
+    )
+    period: TimePeriod = Field(
+        description="The time period for this traffic count.",
+        #sa_column_kwargs={"type_": "SMALLINT"},
+        index=True,
+    )
