@@ -27,7 +27,8 @@ def link(
     service=Depends(service)
 ) -> Link:
     """Get the aggregated speed per link for the given day and time period."""
-    return service.get_link(link_id=link_id)
+    # TODO: Handle IndexError if link_id is not found.
+    return service.get_links(link_id=link_id)[0]
 
 
 @router.get(
@@ -57,6 +58,44 @@ def aggregates(
     Get the aggregated speed per link for the given day and time period.
     """
     return service.get_aggregates(day=day, period=period)
+
+
+@router.get(
+    "/aggregates/spatial_filter/",
+    name="get-aggregates-spatial-filter",
+    response_model=List[Link],
+    response_model_exclude_unset=True
+)
+def get_links_within_bbox(
+    day: int = Query(
+        description="Day of the week",
+        example=2,
+        ge=1,
+        le=7,
+        title="Day of Week"
+    ),
+    period: int = Query(
+        description="Time period",
+        example=7,
+        ge=1,
+        le=7,
+        title="Time Period"
+    ),
+    bbox: List[float] = Query(
+        ...,
+        description="Bounding box to filter links (minx, miny, maxx, maxy)",
+        example=[-81.8, 30.1, -81.6, 30.3],
+        title="Bounding Box",
+        min_length=4,
+        max_length=4
+    ),
+    service=Depends(service)
+) -> List[Link]:
+    """
+    Get the aggregated speed per link for the given day and time period
+    within a specified bounding box.
+    """
+    return service.get_links(bbox=bbox)
 
 
 @router.get(

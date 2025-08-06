@@ -89,17 +89,22 @@ class TrafficService(Service):
                 )
                 for row in result
             ]
-            
-    def get_link(self, link_id: int) -> Link:
+
+    def get_links(
+        self,
+        link_id: int = None,
+        bbox: Tuple[float, float, float, float] = None,
+        offset: int = 0,
+        limit: int = 10
+    ) -> Tuple[Link, ...]:
         """
-        Get a link by its ID.
-        
-        :param link_id: The ID of the link to retrieve.
-        :return: A Link object with the link's details.
+        Get links by ID, or all links if no ID is provided.
+        :param link_id: The ID of the link to retrieve. If None, returns all links.
+        :return: A tuple of Link objects with their details.
         """
         with Session(self._engine) as session:
             # TODO: Use a more efficient query to fetch only the necessary
-            # fields. This query fetches the fid, road_name, and geometry as
+            # fields. This query fetches the link_id, road_name, and geometry as
             # GeoJSON and we convert it to a `LineString`.  We can do this
             # automatically to prevent repetitive code.
             statement = select(
@@ -107,29 +112,47 @@ class TrafficService(Service):
                 Link.road_name,
                 Link.length,
                 func.ST_AsGeoJSON(Link.geom).label('as_geojson')
-            ).where(Link.link_id == link_id)
-            
-            try:
-                result = session.exec(statement).one()
-            except NoResultFound:
-                raise NotFoundException(f"Link with ID {link_id} not found.")
-
-            # Create a Link object with GeoJSON geometry
-            geojson_obj = (
-                json.loads(result.as_geojson)
-                if result.as_geojson
-                else None
             )
-
-            # Create Link object manually (not bound to session)
-            link = Link(
-                link_id=result.link_id,
-                road_name=result.road_name,
-                length=result.length,
-                geom=geojson.LineString.model_validate(geojson_obj)
+            # Only add link_id filter if the caller has supplied one.
+            if link_id is not None:
+                statement = statement.where(Link.link_id == link_id)
+            # If a bounding box is provided, use it to filter the links.
+            if bbox is not None:
+                # Create a bounding box geometry.
+                bbox_geom = func.ST_MakeEnvelope(
+                    bbox[0], bbox[1], bbox[2], bbox[3], 4326
+                )
+                statement = statement.where(
+                    func.ST_Intersects(Link.geom, bbox_geom)
+                )
+            # Add ordering, offset, and limit to the query.
+            statement = statement.order_by(
+                Link.link_id
+            ).offset(
+                offset
+            ).limit(
+                limit
             )
-            return link
-
+            # Execute the query and fetch results.
+            result = session.exec(statement).all()
+            # If no results are found, return an empty tuple.
+            if not result:
+                return tuple()
+            return tuple(
+                Link(
+                    link_id=row.link_id,
+                    road_name=row.road_name,
+                    length=row.length,
+                    geom=(
+                        geojson.LineString.model_validate(
+                            json.loads(row.as_geojson)
+                            if row.as_geojson else None
+                        )
+                        if row.as_geojson else None
+                    )
+                ) for row in result
+            )
+    
     def get_slow_links(
         self,
         period: int,
