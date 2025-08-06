@@ -18,3 +18,9 @@ wheels/
 
 # Project temporary files.
 temp/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Local environment variables file
+.env
