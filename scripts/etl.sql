@@ -11,6 +11,7 @@ CREATE TABLE IF NOT EXISTS "traffic"."links"(
 	-- with the assignment.
 	"link_id" BIGINT PRIMARY KEY,
 	"road_name" CHARACTER VARYING,
+	"length" NUMERIC,
 	"geom" Geometry(LineString, 4326)
 );
 CREATE INDEX idx_links_geom ON "traffic"."links" USING GIST(geom);
@@ -35,11 +36,13 @@ INSERT INTO
 	"traffic"."links"(
 		"link_id",
 		"road_name",
+		"length",
 		"geom"
 	)
 SELECT
 	"link_id",
 	"road_name",
+	"_length",
 	ST_SetSRID(
 		ST_GeometryN(  -- The data came in as MultiLinestring.
 			ST_GeomFromGeoJSON(

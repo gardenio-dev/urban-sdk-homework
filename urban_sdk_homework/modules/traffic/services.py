@@ -1,10 +1,13 @@
+from typing import Tuple
 from functools import lru_cache
 import json
 from typing import Self
 from urban_sdk_homework.core.services import Service
-from urban_sdk_homework.modules.traffic.models import Link, TrafficHello
+from urban_sdk_homework.modules.traffic.errors import NotFoundException
+from urban_sdk_homework.modules.traffic.models import Link, LinkAggs
 from sqlmodel import select, Session, create_engine, SQLModel
 from sqlalchemy import func
+from sqlalchemy.exc import NoResultFound
 from urban_sdk_homework.core.geometry import geojson
 
 # Note to the Future: If we ever want to implement multi-tenancy, we can
@@ -39,48 +42,83 @@ class TrafficService(Service):
         """Create a new instance."""
         print("Initializing TrafficService...")
         self._engine = create_engine(
-            "postgresql://postgres:postgres@host.docker.internal:5432/urbansdk" # TODO: Move to .env.
+            "postgresql://postgres:postgres@host.docker.internal:5432/urbansdk", # TODO: Move to .env.
+            echo=True,
         )
         SQLModel.metadata.create_all(self._engine)
 
-    def say_hello(self) -> str:
-        """Get a friendly greeting."""
-        return TrafficHello(greeting="Hello!")
-
-    def get_link(self, link_id: int) -> Link:
-        """Get a link by its ID."""
-        # with Session(self._engine) as session:
-        #     statement = select(Link).where(Link.fid == link_id)
-        #     link = session.exec(statement).first()
-        #     return link
-        # with Session(self._engine) as session:
-        #     statement = select(
-        #         Link.fid,
-        #         Link.road_name,
-        #         func.ST_AsGeoJSON(Link.geom).label('geom')
-        #     ).where(Link.fid == link_id)
-        #     link = session.exec(statement).first()
-        #     return link
-
+    def get_aggregates(
+        self,
+        day: int,
+        period: int,
+        link_id: int = None,
+        offset: int = 0,
+        limit: int = 10
+    ) -> Tuple[LinkAggs, ...]:
         with Session(self._engine) as session:
-            # TODO: Use a more efficient query to fetch only the necessary 
-            # fields. This query fetches the fid, road_name, and geometry as 
+            statement = select(
+                LinkAggs.link_id,
+                LinkAggs.day_of_week,
+                LinkAggs.period,
+                func.avg(LinkAggs.average_speed).label('avg_speed')
+            ).where(
+                LinkAggs.day_of_week == day,
+                LinkAggs.period == period
+            )
+            # Only add link_id filter if the argument was supplied.
+            if link_id is not None:
+                statement = statement.where(LinkAggs.link_id == link_id)
+            # Build the rest of the statement.
+            statement = statement.group_by(
+                LinkAggs.link_id,
+                LinkAggs.day_of_week,
+                LinkAggs.period
+            ).order_by(
+                LinkAggs.link_id
+            ).offset(
+                offset
+            ).limit(
+                limit
+            )
+            result = session.exec(statement).all()
+            return [
+                LinkAggs(
+                    link_id=row.link_id,
+                    day_of_week=row.day_of_week,
+                    period=row.period,
+                    average_speed=row.avg_speed
+                )
+                for row in result
+            ]
+            
+    def get_link(self, link_id: int) -> Link:
+        """
+        Get a link by its ID.
+        
+        :param link_id: The ID of the link to retrieve.
+        :return: A Link object with the link's details.
+        """
+        with Session(self._engine) as session:
+            # TODO: Use a more efficient query to fetch only the necessary
+            # fields. This query fetches the fid, road_name, and geometry as
             # GeoJSON and we convert it to a `LineString`.  We can do this
             # automatically to prevent repetitive code.
             statement = select(
                 Link.link_id,
                 Link.road_name,
-                func.ST_AsGeoJSON(Link.geom).label('geom_as_geojson')
+                Link.length,
+                func.ST_AsGeoJSON(Link.geom).label('as_geojson')
             ).where(Link.link_id == link_id)
             
-            result = session.exec(statement).first()
-            if result is None:
-                return None
-            
+            try:
+                result = session.exec(statement).one()
+            except NoResultFound:
+                raise NotFoundException(f"Link with ID {link_id} not found.")
+
             # Create a Link object with GeoJSON geometry
             geojson_obj = (
-                json.loads(result.geom_as_geojson)
-                if result.geom_as_geojson
+                json.loads(result.as_geojson)
+                if result.as_geojson
                 else None
             )
 
@@ -88,6 +126,7 @@ class TrafficService(Service):
             link = Link(
                 link_id=result.link_id,
                 road_name=result.road_name,
+                length=result.length,
                 geom=geojson.LineString.model_validate(geojson_obj)
             )
             return link
