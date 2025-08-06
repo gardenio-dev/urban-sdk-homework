@@ -1,5 +1,5 @@
 from collections.abc import Mapping
-import datetime
+from datetime import datetime
 from enum import Enum, IntEnum
 from functools import lru_cache
 from geoalchemy2 import Geometry
@@ -34,18 +34,6 @@ from urban_sdk_homework.core.models import BaseModel
 #     EVENING = 7
 
 
-class TrafficHello(BaseModel):
-
-    timestamp: datetime.datetime = Field(
-        default_factory=datetime.datetime.now,
-        description='Indicates when traffic said "hello".',
-    )
-
-    greeting: Optional[str] = Field(
-        default=None,
-        description="A greeting from traffic.",
-    )
-
 
 class TrafficSQLModel(SQLModel):
     """Base class for traffic SQLModel models."""
@@ -71,9 +59,10 @@ class Link(TrafficSQLModel, table=True):
     )
 
 
-class LinkAggs(TrafficSQLModel, table=True):
+class SpeedRecord(TrafficSQLModel, table=True):
     """Aggregated traffic counts for links."""
-    __tablename__ = "link_aggs"
+
+    __tablename__ = "speed_records"
 
     id: int | None = Field(default=None, primary_key=True)
     link_id: int = Field(
@@ -89,9 +78,14 @@ class LinkAggs(TrafficSQLModel, table=True):
         description="The time period for this traffic count.",
         index=True,
     )
-    average_speed: float = Field(
+    speed: float = Field(
         description=(
             "The average speed for this link during the specified day and "
             "period."
         ),
+    )
+    timestamp: datetime = Field(
+        default=None,
+        description="Indicates when this record was created.",
+        index=True,
     )

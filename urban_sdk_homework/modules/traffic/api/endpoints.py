@@ -3,7 +3,7 @@ from fastapi import Depends, Query
 
 from fastapi import Path
 from urban_sdk_homework.core.fastapi import APIRouter
-from urban_sdk_homework.modules.traffic.models import Link, LinkAggs
+from urban_sdk_homework.modules.traffic.models import Link, SpeedRecord
 from urban_sdk_homework.modules.traffic.api.dependencies import service
 
 # Note to the Future:  Since these traffic endpoints are currently our
@@ -33,7 +33,7 @@ def link(
 @router.get(
     "/aggregates/",
     name="get-aggregates",
-    response_model=List[LinkAggs],
+    response_model=List[SpeedRecord],
     response_model_exclude_unset=True
 )
 def aggregates(
@@ -52,7 +52,7 @@ def aggregates(
         title="Time Period"
     ),
     service=Depends(service)
-) -> List[LinkAggs]:
+) -> List[SpeedRecord]:
     """
     Get the aggregated speed per link for the given day and time period.
     """
@@ -62,7 +62,7 @@ def aggregates(
 @router.get(
     "/aggregates/{link_id}",
     name="get-aggregates-by-link",
-    response_model=LinkAggs,
+    response_model=SpeedRecord,
     response_model_exclude_unset=True
 )
 def aggregates_by_link(
@@ -87,7 +87,7 @@ def aggregates_by_link(
         title="Time Period"
     ),
     service=Depends(service)
-) -> LinkAggs:
+) -> SpeedRecord:
     """
     Get the aggregated speed per link for the given day and time period.
     """

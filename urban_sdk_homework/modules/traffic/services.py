@@ -4,7 +4,7 @@ import json
 from typing import Self
 from urban_sdk_homework.core.services import Service
 from urban_sdk_homework.modules.traffic.errors import NotFoundException
-from urban_sdk_homework.modules.traffic.models import Link, LinkAggs
+from urban_sdk_homework.modules.traffic.models import Link, SpeedRecord
 from sqlmodel import select, Session, create_engine, SQLModel
 from sqlalchemy import func
 from sqlalchemy.exc import NoResultFound
@@ -40,7 +40,6 @@ class TrafficService(Service):
 
     def __init__(self):
         """Create a new instance."""
-        print("Initializing TrafficService...")
         self._engine = create_engine(
             "postgresql://postgres:postgres@host.docker.internal:5432/urbansdk", # TODO: Move to .env.
             echo=True,
@@ -54,27 +53,27 @@ class TrafficService(Service):
         link_id: int = None,
         offset: int = 0,
         limit: int = 10
-    ) -> Tuple[LinkAggs, ...]:
+    ) -> Tuple[SpeedRecord, ...]:
         with Session(self._engine) as session:
             statement = select(
-                LinkAggs.link_id,
-                LinkAggs.day_of_week,
-                LinkAggs.period,
-                func.avg(LinkAggs.average_speed).label('avg_speed')
+                SpeedRecord.link_id,
+                SpeedRecord.day_of_week,
+                SpeedRecord.period,
+                func.avg(SpeedRecord.speed).label('speed')
             ).where(
-                LinkAggs.day_of_week == day,
-                LinkAggs.period == period
+                SpeedRecord.day_of_week == day,
+                SpeedRecord.period == period
             )
             # Only add link_id filter if the argument was supplied.
             if link_id is not None:
-                statement = statement.where(LinkAggs.link_id == link_id)
+                statement = statement.where(SpeedRecord.link_id == link_id)
             # Build the rest of the statement.
             statement = statement.group_by(
-                LinkAggs.link_id,
-                LinkAggs.day_of_week,
-                LinkAggs.period
+                SpeedRecord.link_id,
+                SpeedRecord.day_of_week,
+                SpeedRecord.period
             ).order_by(
-                LinkAggs.link_id
+                SpeedRecord.link_id
             ).offset(
                 offset
             ).limit(
@@ -82,11 +81,11 @@ class TrafficService(Service):
             )
             result = session.exec(statement).all()
             return [
-                LinkAggs(
+                SpeedRecord(
                     link_id=row.link_id,
                     day_of_week=row.day_of_week,
                     period=row.period,
-                    average_speed=row.avg_speed
+                    speed=row.speed,
                 )
                 for row in result
             ]
@@ -131,6 +130,22 @@ class TrafficService(Service):
             )
             return link
 
+    # def get_slow_links(self, threshold: float) -> Tuple[Link, ...]:
+    #     """
+    #     Get links with average speed below a certain threshold.
+        
+    #     :param threshold: The speed threshold below which links are considered slow.
+    #     :return: A tuple of Link objects that are considered slow.
+    #     """
+    #     with Session(self._engine) as session:
+    #         statement = select(Link).where(
+    #             LinkAggs.average_speed < threshold
+    #         ).join(LinkAggs, Link.link_id == LinkAggs.link_id)
+    #         result = session.exec(statement).all()
+    #         return tuple(result)
+    
+    
+    
     @classmethod
     @lru_cache()
     def connect(cls) -> Self:

@@ -16,19 +16,21 @@ CREATE TABLE IF NOT EXISTS "traffic"."links"(
 );
 CREATE INDEX idx_links_geom ON "traffic"."links" USING GIST(geom);
 
--- Create the "link aggregates" table.
-DROP TABLE IF EXISTS "traffic"."link_aggs";
-CREATE TABLE IF NOT EXISTS "traffic"."link_aggs"(
+-- Create the "speed_records" table.
+DROP TABLE IF EXISTS "traffic"."speed_records";
+CREATE TABLE IF NOT EXISTS "traffic"."speed_records"(
 	"id" SERIAL PRIMARY KEY,
 	"link_id" BIGINT REFERENCES "traffic"."links"("link_id"),
-	"average_speed" DOUBLE PRECISION,
+	"speed" DOUBLE PRECISION,
 	"day_of_week" SMALLINT,
-	"period" SMALLINT
+	"period" SMALLINT,
+	"timestamp" TIMESTAMPTZ
 );
-CREATE INDEX IF NOT EXISTS idx_link_aggs_link_id ON "traffic"."link_aggs"("link_id");
-CREATE INDEX IF NOT EXISTS idx_link_aggs_average_speed ON "traffic"."link_aggs"("average_speed");
-CREATE INDEX IF NOT EXISTS idx_link_aggs_day_of_week ON "traffic"."link_aggs"("day_of_week");
-CREATE INDEX IF NOT EXISTS idx_link_aggs_period ON "traffic"."link_aggs"("period");
+CREATE INDEX IF NOT EXISTS idx_speed_records_link_id ON "traffic"."speed_records"("link_id");
+CREATE INDEX IF NOT EXISTS idx_speed_records_speed ON "traffic"."speed_records"("speed");
+CREATE INDEX IF NOT EXISTS idx_speed_records_day_of_week ON "traffic"."speed_records"("day_of_week");
+CREATE INDEX IF NOT EXISTS idx_speed_records_period ON "traffic"."speed_records"("period");
+CREATE INDEX IF NOT EXISTS idx_speed_records_timestamp ON "traffic"."speed_records"("timestamp");
 
 -- ETL the Links data.
 DELETE FROM "traffic"."links";
@@ -57,19 +59,21 @@ FROM
 ;
 
 -- ETL the aggregates data.
-DELETE FROM "traffic"."link_aggs";
+DELETE FROM "traffic"."speed_records";
 INSERT INTO 
-	"traffic"."link_aggs"(
+	"traffic"."speed_records"(
 		"link_id",
-		"average_speed",
+		"speed",
 		"day_of_week",
-		"period"
+		"period",
+		"timestamp"
 	)
 SELECT
 	"link_id",
 	"average_speed",
 	"day_of_week",
-	"period"
+	"period",
+	"date_time"::TIMESTAMPTZ
 FROM
 	"staging"."duval_jan1_2024"
 ;
