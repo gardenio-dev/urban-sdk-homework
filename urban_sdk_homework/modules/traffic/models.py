@@ -1,14 +1,15 @@
 from datetime import datetime
-from typing import List
 from enum import Enum
+from typing import List
+
 from geoalchemy2 import Geometry
-from pydantic import ConfigDict, field_validator
 from pydantic import BaseModel
+from pydantic import ConfigDict
+from pydantic import field_validator
 from sqlmodel import Field
 from sqlmodel import SQLModel
 
 from urban_sdk_homework.core.geometry import geojson
-
 
 
 # class DayOfWeek(IntEnum):
@@ -33,6 +34,7 @@ from urban_sdk_homework.core.geometry import geojson
 #     EARLY_AFTERNOON = 5
 #     PM_PEAK = 6
 #     EVENING = 7
+
 
 class DayOfWeek(str, Enum):
     """Days of the week for traffic data aggregation."""
@@ -173,23 +175,21 @@ class Aggregate(BaseModel):
         description="The length of the link in meters.",
         title="Link Length",
     )
-    speed: float = Field(
-        title="Average Speed"
-    )
+    speed: float = Field(title="Average Speed")
     day_of_week: DayOfWeek = Field(
         description="The day of the week for this traffic count.",
         title="Day of Week",
     )
     period: TimePeriod = Field(
         description="The time period for this traffic count.",
-        title="Time Period"
+        title="Time Period",
     )
     geom: geojson.LineString = Field(
         description="The geometry of the link.",
         title="Link Geometry",
     )
 
-    @field_validator('day_of_week', mode='before')
+    @field_validator("day_of_week", mode="before")
     @classmethod
     def convert_day_of_week(cls, v):
         """Convert integer (1-7) to DayOfWeek enum value."""
@@ -208,7 +208,7 @@ class Aggregate(BaseModel):
                 f"got {type(v)}"
             )
 
-    @field_validator('period', mode='before')
+    @field_validator("period", mode="before")
     @classmethod
     def convert_period(cls, v):
         """Convert integer (1-7) to TimePeriod enum value."""

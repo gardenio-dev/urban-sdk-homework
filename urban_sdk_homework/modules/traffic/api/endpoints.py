@@ -6,9 +6,11 @@ from fastapi import Query
 
 from urban_sdk_homework.core.fastapi import APIRouter
 from urban_sdk_homework.modules.traffic.api.dependencies import service
-from urban_sdk_homework.modules.traffic.models import Aggregate, DayOfWeek, Link, TimePeriod
+from urban_sdk_homework.modules.traffic.models import Aggregate
+from urban_sdk_homework.modules.traffic.models import DayOfWeek
+from urban_sdk_homework.modules.traffic.models import Link
 from urban_sdk_homework.modules.traffic.models import SpatialFilterParams
-from urban_sdk_homework.modules.traffic.models import SpeedRecord
+from urban_sdk_homework.modules.traffic.models import TimePeriod
 
 # Note to the Future:  Since these traffic endpoints are currently our
 # only service endpoints, we'll mount them without a prefix.
@@ -86,9 +88,7 @@ def aggregates_by_link(
     """
     # TODO: Handle IndexError if link_id is not found.
     return service.get_aggregates(
-        link_id=link_id,
-        day=int(day),
-        period=int(period)
+        link_id=link_id, day=int(day), period=int(period)
     )[0]
 
 
