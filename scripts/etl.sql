@@ -34,7 +34,7 @@ CREATE INDEX IF NOT EXISTS idx_speed_records_timestamp ON "traffic"."speed_recor
 
 -- ETL the Links data.
 DELETE FROM "traffic"."links";
-INSERT INTO 
+INSERT INTO
 	"traffic"."links"(
 		"link_id",
 		"road_name",
@@ -60,7 +60,7 @@ FROM
 
 -- ETL the aggregates data.
 DELETE FROM "traffic"."speed_records";
-INSERT INTO 
+INSERT INTO
 	"traffic"."speed_records"(
 		"link_id",
 		"speed",
@@ -77,5 +77,3 @@ SELECT
 FROM
 	"staging"."duval_jan1_2024"
 ;
-
-

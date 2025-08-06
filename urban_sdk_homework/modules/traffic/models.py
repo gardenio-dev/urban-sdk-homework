@@ -1,11 +1,10 @@
-from collections.abc import Mapping
 from datetime import datetime
-from enum import Enum, IntEnum
-from functools import lru_cache
+from typing import List
+
 from geoalchemy2 import Geometry
 from pydantic import ConfigDict
-from sqlmodel import Field, SQLModel
-from typing import List, Optional
+from sqlmodel import Field
+from sqlmodel import SQLModel
 
 from urban_sdk_homework.core.geometry import geojson
 from urban_sdk_homework.core.models import BaseModel
@@ -35,24 +34,24 @@ from urban_sdk_homework.core.models import BaseModel
 #     EVENING = 7
 
 
-
 class TrafficSQLModel(SQLModel):
     """Base class for traffic SQLModel models."""
+
     __table_args__ = {"schema": "traffic"}
 
 
 class Link(TrafficSQLModel, table=True):
     """A link in the traffic network."""
+
     __tablename__ = "links"
 
     link_id: int | None = Field(default=None, primary_key=True)
     road_name: str | None = Field(
         default=None,
-        description="This is the name of the road to which this link belongs."
+        description="This is the name of the road to which this link belongs.",
     )
     length: float | None = Field(
-        default=None,
-        description="The length of the link in meters."
+        default=None, description="The length of the link in meters."
     )
     geom: geojson.LineString = Field(
         description="This is the link geometry.",
@@ -94,30 +93,30 @@ class SpeedRecord(TrafficSQLModel, table=True):
 
 class SpatialFilterParams(BaseModel):
     """Request model for spatial filtering."""
-    
+
     model_config = ConfigDict(
         json_schema_extra={
             "example": {
                 "day": 2,
                 "period": 7,
-                "bbox": [-81.8, 30.1, -81.6, 30.3]
+                "bbox": [-81.8, 30.1, -81.6, 30.3],
             }
         }
     )
-    
+
     day: int = Field(
         description="Day of the week",
         # example=2,
         ge=1,
         le=7,
-        title="Day of Week"
+        title="Day of Week",
     )
     period: int = Field(
         description="Time period",
         # example=7,
         ge=1,
         le=7,
-        title="Time Period"
+        title="Time Period",
     )
     bbox: List[float] = Field(
         description="Bounding box to filter links (minx, miny, maxx, maxy)",

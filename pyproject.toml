@@ -53,4 +53,4 @@ line-length = 79
 packages = ["urban_sdk_homework"]
 
 [tool.setuptools.dynamic]
-version = {attr = "urban_sdk_homework.__version__"} 
+version = {attr = "urban_sdk_homework.__version__"}

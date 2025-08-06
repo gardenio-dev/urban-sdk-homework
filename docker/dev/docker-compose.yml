@@ -4,4 +4,3 @@ services:
     container_name: ${IMAGE}
     volumes:
       - ../..:/home/nonroot/${PROJECT}
-

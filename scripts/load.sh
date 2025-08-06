@@ -31,6 +31,3 @@ ogr2ogr \
 # Ensure libpq is in your PATH.
 export PATH="$PATH:/usr/local/Cellar/libpq/17.5/bin"
 psql -f ./scripts/etl.sql
-
-
-

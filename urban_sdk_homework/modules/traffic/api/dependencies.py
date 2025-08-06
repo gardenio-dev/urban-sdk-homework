@@ -1,5 +1,3 @@
-from fastapi import Path
-
 from urban_sdk_homework.modules.traffic.services import TrafficService
 
 # Note to the Future: If we ever want to implement multi-tenancy, we can

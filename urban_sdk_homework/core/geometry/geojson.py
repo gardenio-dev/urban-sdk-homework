@@ -18,13 +18,13 @@ from shapely.geometry import shape
 from shapely.geometry.base import BaseGeometry
 
 from urban_sdk_homework.core.geometry.errors import CrsMismatchException
-from urban_sdk_homework.core.geometry.errors import MissingCrsException
 from urban_sdk_homework.core.geometry.errors import (
-    NonContiguousLineStringException
+    NonContiguousLineStringException,
 )
+from urban_sdk_homework.core.models import BaseModel
+
 # from urban_sdk_homework.core.geometry.proj import bestsrid
 # from urban_sdk_homework.core.geometry.proj import projector
-from urban_sdk_homework.core.models import BaseModel
 
 
 Coordinate = Annotated[

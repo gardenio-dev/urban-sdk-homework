@@ -32,12 +32,12 @@ setup:
     # Install VS Code extensions.
     cat .vscode/extensions.json | \
         jq -r '.recommendations[]' | \
-        xargs -n 1 sh -c 'code --install-extension "$1"' --  
+        xargs -n 1 sh -c 'code --install-extension "$1"' --
     # Install Python dependencies and the current package.
     uv pip install -e .[dev] --system
     pip install -e . --no-deps
     # Set up the pre-commit hooks.
     pre-commit install --hook-type commit-msg
-    # Since we're using pyenv, we need to rehash to make sure the new 
+    # Since we're using pyenv, we need to rehash to make sure the new
     # executables are available.
     pyenv rehash

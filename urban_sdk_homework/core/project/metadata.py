@@ -65,6 +65,7 @@ def metadata() -> Metadata:
     package = __name__.split(".")[0]
 
     import urban_sdk_homework
+
     # try:
     #     metadata = importlib.metadata.metadata(package)
     # except importlib.metadata.PackageNotFoundError:
@@ -74,7 +75,7 @@ def metadata() -> Metadata:
     #     module = spec.load()
     #     metadata = pkg_resources.get_distribution(package)
 
-    # 
+    #
     # Resolve the current version info.
     semver = semantic_version.Version(urban_sdk_homework.__version__)
     if not semver:
