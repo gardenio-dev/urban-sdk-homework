@@ -135,7 +135,7 @@ class TrafficService(Service):
         """
         Get links by ID, or all links if no ID is provided.
         :param link_id: The ID of the link to retrieve. If None, returns all
-          links.
+            links.
         :return: A tuple of Link objects with their details.
         """
         with Session(self._engine) as session:
