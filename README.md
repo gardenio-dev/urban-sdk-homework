@@ -303,9 +303,9 @@ Compatible with standard GIS tools and web mapping libraries.
 ## 🆘 Support
 
 - **Issues**: [GitHub Issues](link-to-issues)
-- **Documentation**: See `/docs` endpoint when running
+- **Documentation**: See `/openapi` endpoint when running
 - **Dev Container**: Pre-configured with all dependencies
 
 ---
 
-Built with ❤️ for urban traffic analysis
+Built with ❤️ for urban sdk
