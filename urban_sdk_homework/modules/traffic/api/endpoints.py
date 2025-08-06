@@ -96,3 +96,44 @@ def aggregates_by_link(
         day=day,
         period=period
     )[0]  # Return the first result, as we expect only one.
+
+
+@router.get(
+    "/patterns/slow_links/",
+    name="get-slow-links",
+    response_model=List[Link],
+    response_model_exclude_unset=True
+)
+def get_slow_links(
+    period: int = Query(
+        description="Time period",
+        example=7,
+        ge=1,
+        le=7,
+        title="Time Period"
+    ),
+    threshold: float = Query(
+        description="Speed threshold",
+        example=30.0,
+        gt=0,
+        title="Speed Threshold"
+    ),
+    min_days: int = Query(
+        description=(
+            "Minimum number of days the link must be below the threshold to "
+            "be considered consistently slow"
+        ),
+        example=3,
+        ge=1,
+        title="Minimum Days"
+    ),
+    service=Depends(service)
+) -> List[Link]:
+    """
+    Get links that have been consistently slow over a period of time.
+    """
+    return service.get_slow_links(
+        period=period,
+        threshold=threshold,
+        min_days=min_days
+    )

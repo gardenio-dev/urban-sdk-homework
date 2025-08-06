@@ -130,22 +130,53 @@ class TrafficService(Service):
             )
             return link
 
-    # def get_slow_links(self, threshold: float) -> Tuple[Link, ...]:
-    #     """
-    #     Get links with average speed below a certain threshold.
-        
-    #     :param threshold: The speed threshold below which links are considered slow.
-    #     :return: A tuple of Link objects that are considered slow.
-    #     """
-    #     with Session(self._engine) as session:
-    #         statement = select(Link).where(
-    #             LinkAggs.average_speed < threshold
-    #         ).join(LinkAggs, Link.link_id == LinkAggs.link_id)
-    #         result = session.exec(statement).all()
-    #         return tuple(result)
-    
-    
-    
+    def get_slow_links(
+        self,
+        period: int,
+        threshold: float,
+        min_days: int = 3,
+        offset: int = 0,
+        limit: int = 10,
+    ) -> Tuple[Link, ...]:
+        with Session(self._engine) as session:
+            statement = select(
+                Link.link_id,
+                Link.road_name,
+                Link.length,
+                func.avg(SpeedRecord.speed).label('speed'),
+                func.ST_AsGeoJSON(Link.geom).label('as_geojson')
+            ).join(
+                SpeedRecord,
+                SpeedRecord.link_id == Link.link_id
+            ).where(
+                SpeedRecord.period == period,
+                SpeedRecord.speed < threshold
+            ).group_by(
+                Link.link_id,
+                Link.road_name,
+                Link.length
+            ).having(
+                func.count(SpeedRecord.id) >= min_days
+            ).order_by(
+                Link.link_id
+            ).offset(
+                offset
+            ).limit(
+                limit
+            )
+            result = session.exec(statement).all()
+            return [
+                Link(
+                    link_id=row.link_id,
+                    road_name=row.road_name,
+                    length=row.length,
+                    geom=geojson.LineString.model_validate(
+                        json.loads(row.as_geojson)
+                    ) if row.as_geojson else None
+                )
+                for row in result
+            ]
+
     @classmethod
     @lru_cache()
     def connect(cls) -> Self:
