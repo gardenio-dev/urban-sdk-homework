@@ -3,11 +3,12 @@ from typing import List
 
 from geoalchemy2 import Geometry
 from pydantic import ConfigDict
+from pydantic import BaseModel
 from sqlmodel import Field
 from sqlmodel import SQLModel
 
 from urban_sdk_homework.core.geometry import geojson
-from urban_sdk_homework.core.models import BaseModel
+
 
 
 # class DayOfWeek(IntEnum):
@@ -89,6 +90,32 @@ class SpeedRecord(TrafficSQLModel, table=True):
         description="Indicates when this record was created.",
         index=True,
     )
+
+
+class Aggregate(BaseModel):
+    """Aggregated traffic data for a link."""
+
+    model_config = ConfigDict(
+        json_schema_extra={
+            "example": {
+                "link_id": 123,
+                "road_name": "Main St",
+                "length": 1500.0,
+                "speed": 45.5,
+                "day_of_week": 2,
+                "period": 3,
+            }
+        }
+    )
+
+    # TODO: Add field descriptors.
+    link_id: int
+    road_name: str
+    length: float
+    speed: float
+    day_of_week: int
+    period: int
+    geom: geojson.LineString
 
 
 class SpatialFilterParams(BaseModel):

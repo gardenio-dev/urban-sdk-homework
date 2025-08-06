@@ -6,7 +6,7 @@ from fastapi import Query
 
 from urban_sdk_homework.core.fastapi import APIRouter
 from urban_sdk_homework.modules.traffic.api.dependencies import service
-from urban_sdk_homework.modules.traffic.models import Link
+from urban_sdk_homework.modules.traffic.models import Aggregate, Link
 from urban_sdk_homework.modules.traffic.models import SpatialFilterParams
 from urban_sdk_homework.modules.traffic.models import SpeedRecord
 
@@ -38,7 +38,7 @@ def link(
 @router.get(
     "/aggregates/",
     name="get-aggregates",
-    response_model=List[SpeedRecord],
+    response_model=List[Aggregate],
     response_model_exclude_unset=True,
 )
 def aggregates(
@@ -53,7 +53,7 @@ def aggregates(
         description="Time period", example=7, ge=1, le=7, title="Time Period"
     ),
     service=Depends(service),
-) -> List[SpeedRecord]:
+) -> List[Aggregate]:
     """
     Get the aggregated speed per link for the given day and time period.
     """
@@ -63,7 +63,7 @@ def aggregates(
 @router.get(
     "/aggregates/{link_id}",
     name="get-aggregates-by-link",
-    response_model=SpeedRecord,
+    response_model=Aggregate,
     response_model_exclude_unset=True,
 )
 def aggregates_by_link(
@@ -84,7 +84,7 @@ def aggregates_by_link(
         description="Time period", example=7, ge=1, le=7, title="Time Period"
     ),
     service=Depends(service),
-) -> SpeedRecord:
+) -> Aggregate:
     """
     Get the aggregated speed per link for the given day and time period.
     """
@@ -134,28 +134,6 @@ def get_slow_links(
     response_model_exclude_unset=True,
 )
 def get_aggregates_spatial_filter(
-    # day: int = Query(
-    #     description="Day of the week",
-    #     example=2,
-    #     ge=1,
-    #     le=7,
-    #     title="Day of Week"
-    # ),
-    # period: int = Query(
-    #     description="Time period",
-    #     example=7,
-    #     ge=1,
-    #     le=7,
-    #     title="Time Period"
-    # ),
-    # bbox: List[float] = Query(
-    #     ...,
-    #     description="Bounding box to filter links (minx, miny, maxx, maxy)",
-    #     example=[-81.8, 30.1, -81.6, 30.3],
-    #     title="Bounding Box",
-    #     min_length=4,
-    #     max_length=4,
-    # ),
     params: SpatialFilterParams,
     service=Depends(service),
 ) -> List[Link]:

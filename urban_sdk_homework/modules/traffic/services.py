@@ -11,7 +11,7 @@ from sqlmodel import SQLModel
 
 from urban_sdk_homework.core.geometry import geojson
 from urban_sdk_homework.core.services import Service
-from urban_sdk_homework.modules.traffic.models import Link
+from urban_sdk_homework.modules.traffic.models import Aggregate, Link
 from urban_sdk_homework.modules.traffic.models import SpeedRecord
 
 # Note to the Future: If we ever want to implement multi-tenancy, we can
@@ -55,42 +55,73 @@ class TrafficService(Service):
         day: int,
         period: int,
         link_id: int = None,
+        bbox: Tuple[float, float, float, float] = None,
         offset: int = 0,
         limit: int = 10,
-    ) -> Tuple[SpeedRecord, ...]:
+    ) -> Tuple[Aggregate, ...]:
         with Session(self._engine) as session:
             statement = select(
                 SpeedRecord.link_id,
                 SpeedRecord.day_of_week,
                 SpeedRecord.period,
                 func.avg(SpeedRecord.speed).label("speed"),
+                Link.road_name,
+                Link.length,
+                func.ST_AsGeoJSON(Link.geom).label("as_geojson"),
+            ).join(
+                Link, SpeedRecord.link_id == Link.link_id
             ).where(
-                SpeedRecord.day_of_week == day, SpeedRecord.period == period
+                SpeedRecord.day_of_week == day, 
+                SpeedRecord.period == period
             )
+
             # Only add link_id filter if the argument was supplied.
             if link_id is not None:
                 statement = statement.where(SpeedRecord.link_id == link_id)
+
+            # Add spatial filter if bbox is provided
+            if bbox is not None:
+                bbox_geom = func.ST_MakeEnvelope(
+                    bbox[0], bbox[1], bbox[2], bbox[3], 4326
+                )
+                statement = statement.where(
+                    func.ST_Intersects(Link.geom, bbox_geom)
+                )
+
             # Build the rest of the statement.
             statement = (
                 statement.group_by(
                     SpeedRecord.link_id,
                     SpeedRecord.day_of_week,
                     SpeedRecord.period,
+                    Link.road_name,
+                    Link.length,
+                    Link.geom,
                 )
                 .order_by(SpeedRecord.link_id)
                 .offset(offset)
                 .limit(limit)
             )
+            
             result = session.exec(statement).all()
-            return [
-                SpeedRecord(
+            return tuple(
+                Aggregate(
                     link_id=row.link_id,
                     day_of_week=row.day_of_week,
                     period=row.period,
                     speed=row.speed,
+                    road_name=row.road_name,
+                    length=row.length,
+                    geom=(
+                        geojson.LineString.model_validate(
+                            json.loads(row.as_geojson)
+                        )
+                        if row.as_geojson
+                        else None
+                    ),
                 )
                 for row in result
-            ]
+            )
 
     def get_links(
         self,
