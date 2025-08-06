@@ -6,7 +6,7 @@ from fastapi import Query
 
 from urban_sdk_homework.core.fastapi import APIRouter
 from urban_sdk_homework.modules.traffic.api.dependencies import service
-from urban_sdk_homework.modules.traffic.models import Aggregate, Link
+from urban_sdk_homework.modules.traffic.models import Aggregate, DayOfWeek, Link, TimePeriod
 from urban_sdk_homework.modules.traffic.models import SpatialFilterParams
 from urban_sdk_homework.modules.traffic.models import SpeedRecord
 
@@ -42,22 +42,20 @@ def link(
     response_model_exclude_unset=True,
 )
 def aggregates(
-    day: int = Query(
+    day: DayOfWeek = Query(
         description="Day of the week",
-        example=2,
-        ge=1,
-        le=7,
+        example="Monday",
         title="Day of Week",
     ),
-    period: int = Query(
-        description="Time period", example=7, ge=1, le=7, title="Time Period"
+    period: TimePeriod = Query(
+        description="Time period", example="Evening", title="Time Period"
     ),
     service=Depends(service),
 ) -> List[Aggregate]:
     """
     Get the aggregated speed per link for the given day and time period.
     """
-    return service.get_aggregates(day=day, period=period)
+    return service.get_aggregates(day=int(day), period=int(period))
 
 
 @router.get(
@@ -73,15 +71,13 @@ def aggregates_by_link(
         ge=0,
         title="Link ID",
     ),
-    day: int = Query(
+    day: DayOfWeek = Query(
         description="Day of the week",
-        example=2,
-        ge=1,
-        le=7,
+        example="Monday",
         title="Day of Week",
     ),
-    period: int = Query(
-        description="Time period", example=7, ge=1, le=7, title="Time Period"
+    period: TimePeriod = Query(
+        description="Time period", example="Evening", title="Time Period"
     ),
     service=Depends(service),
 ) -> Aggregate:
@@ -89,7 +85,11 @@ def aggregates_by_link(
     Get the aggregated speed per link for the given day and time period.
     """
     # TODO: Handle IndexError if link_id is not found.
-    return service.get_aggregates(link_id=link_id, day=day, period=period)[0]
+    return service.get_aggregates(
+        link_id=link_id,
+        day=int(day),
+        period=int(period)
+    )[0]
 
 
 @router.get(
@@ -99,8 +99,8 @@ def aggregates_by_link(
     response_model_exclude_unset=True,
 )
 def get_slow_links(
-    period: int = Query(
-        description="Time period", example=7, ge=1, le=7, title="Time Period"
+    period: TimePeriod = Query(
+        description="Time period", example="Evening", title="Time Period"
     ),
     threshold: float = Query(
         description="Speed threshold",
@@ -123,7 +123,7 @@ def get_slow_links(
     Get links that have been consistently slow over a period of time.
     """
     return service.get_slow_links(
-        period=period, threshold=threshold, min_days=min_days
+        period=int(period), threshold=threshold, min_days=min_days
     )
 
 

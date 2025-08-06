@@ -56,6 +56,7 @@ notebooks:
 setup:
     #!/usr/bin/env bash
     set -aeo pipefail
+    touch .env
     source .env
     
     if [ "${DEV_CONTAINER:-0}" = "1" ]; then

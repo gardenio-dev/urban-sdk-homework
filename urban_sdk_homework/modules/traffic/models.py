@@ -47,14 +47,18 @@ class DayOfWeek(str, Enum):
 
     @classmethod
     def from_int(cls, value: int) -> "DayOfWeek":
-        """Create DayOfWeek from integer position (0=Sunday, 6=Saturday)."""
+        """Create DayOfWeek from integer position (1=Sunday, 7=Saturday)."""
         members = list(cls)
-        if 0 <= value < len(members):
-            return members[value]
+        if 1 <= value <= len(members):
+            return members[value - 1]  # Convert 1-based to 0-based indexing
         raise ValueError(
             f"Invalid day of week integer: {value}. "
-            "Must be 0-{len(members)-1}."
+            f"Must be 1-{len(members)}."
         )
+
+    def __int__(self) -> int:
+        """Convert DayOfWeek to integer position (1=Sunday, 7=Saturday)."""
+        return list(DayOfWeek).index(self) + 1  # Convert 0-based to 1-based
 
 
 class TimePeriod(str, Enum):
@@ -73,11 +77,15 @@ class TimePeriod(str, Enum):
         """Create TimePeriod from integer position (1-7)."""
         members = list(cls)
         if 1 <= value <= len(members):
-            return members[value - 1]
+            return members[value - 1]  # Convert 1-based to 0-based indexing
         raise ValueError(
             f"Invalid time period integer: {value}. "
-            "Must be 1-{len(members)}."
+            f"Must be 1-{len(members)}."
         )
+
+    def __int__(self) -> int:
+        """Convert TimePeriod to integer position (1-7)."""
+        return list(TimePeriod).index(self) + 1  # Convert 0-based to 1-based
 
 
 class TrafficSQLModel(SQLModel):
@@ -153,7 +161,6 @@ class Aggregate(BaseModel):
         }
     )
 
-    # TODO: Add field descriptors.
     link_id: int = Field(
         description="The ID of the link.",
         title="Link ID",
@@ -188,8 +195,7 @@ class Aggregate(BaseModel):
         """Convert integer (1-7) to DayOfWeek enum value."""
         if isinstance(v, int):
             if 1 <= v <= 7:
-                # Convert 1-7 to 0-6 for DayOfWeek.from_int()
-                return DayOfWeek.from_int(v - 1)
+                return DayOfWeek.from_int(v)
             else:
                 raise ValueError(
                     f"Day of week must be between 1 and 7, got {v}"
