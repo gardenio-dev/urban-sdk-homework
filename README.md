@@ -9,7 +9,7 @@ The project was built to address the requirements of the homework assignment,
 but I'm also attempting to address issues like maintainable project structure.
 
 > [!WARNING]
-> This project was created to demonstrate the my understanding of application
+> This project was created to demonstrate my understanding of application
 > development in general, and geospatial applications in particular, using 
 > tools like FastAPI and PostGIS.  The repository will be removed in the 
 > near future.
