@@ -5,6 +5,18 @@ A FastAPI-based traffic data analysis service that provides REST APIs for
 querying and visualizing aggregated traffic speed data on road networks. Built
 with PostgreSQL + PostGIS for spatial data operations.
 
+> [!WARNING]
+> This project was created to demonstrate the my understanding of application
+> development in general, and geospatial applications in particular, using 
+> tools like FastAPI and PostGIS.  The repository will be removed in the 
+> near future.
+
+## 🚧 TODOS
+
+- Add pytest and Gherkin. 
+- Add a PostGIS container to the development `docker-compose.yaml`.
+- Lots of other stuff.
+
 
 ## 🚀 Features
 
