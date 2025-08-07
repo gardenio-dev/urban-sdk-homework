@@ -12,8 +12,9 @@ with PostgreSQL + PostGIS for spatial data operations.
 > near future.
 
 > [!NOTE]
-> This is a first draft for demonstration.  There are many #TODOs.  Thank you
-> in advance for your patience and understanding.
+> This is a first draft for demonstration.  There are many #TODOs.  I will 
+> continue to work on it.  Thank you in advance for your patience and 
+> understanding.
 
 
 ## 🚧 TODOS
@@ -32,38 +33,130 @@ with PostgreSQL + PostGIS for spatial data operations.
 - **RESTful API**: FastAPI with automatic OpenAPI documentation
 - **Enum Support**: Human-readable day/period names in API responses
 
+
 ## 📁 Project Structure
 
 ```
 urban-sdk-homework/
+├── .devcontainer/               # VS Code dev container configuration
+├── .vscode/                     # VS Code workspace settings
 ├── urban_sdk_homework/          # Main application package
 │   ├── core/                    # Core utilities and base classes
-│   │   ├── fastapi.py          # FastAPI router configuration
-│   │   ├── geometry.py         # GeoJSON models
+│   │   ├── auth/               # Authentication framework
+│   │   │   ├── __init__.py
+│   │   │   ├── errors.py       # Auth-specific exceptions
+│   │   │   ├── models.py       # User/Friend models with Frontegg
+│   │   │   ├── providers.py    # Authentication provider abstractions
+│   │   │   ├── settings.py     # Auth configuration settings
+│   │   │   └── web.py          # Auth API endpoints (/whoami)
+│   │   ├── geometry/           # Spatial data handling
+│   │   │   ├── __init__.py
+│   │   │   ├── errors.py       # Geometry-specific exceptions
+│   │   │   ├── geojson.py      # GeoJSON models and utilities
+│   │   │   └── proj.py         # Projection and coordinate transformation
+│   │   ├── project/            # Project metadata management
+│   │   │   ├── __init__.py
+│   │   │   ├── metadata.py     # Version and package information
+│   │   │   └── web.py          # Project metadata API endpoints
+│   │   ├── settings/           # Configuration management
+│   │   │   ├── __init__.py
+│   │   │   ├── api.py          # Settings API router factory
+│   │   │   ├── base.py         # Base settings class with env support
+│   │   │   └── errors.py       # Settings-specific exceptions
+│   │   ├── __init__.py
+│   │   ├── click.py            # Click CLI utilities and decorators
+│   │   ├── console.py          # Rich console pretty printing
+│   │   ├── errors.py           # Base application exceptions
+│   │   ├── fastapi.py          # Enhanced FastAPI router with auto-discovery
+│   │   ├── jinja.py            # Jinja2 template environment
+│   │   ├── logging.py          # Structured logging with structlog
 │   │   ├── models.py           # Base Pydantic models
-│   │   └── services.py         # Base service class
+│   │   ├── modules.py          # Dynamic module loading utilities
+│   │   ├── services.py         # Base service class
+│   │   └── strings.py          # String manipulation utilities (camel/snake/kebab)
 │   └── modules/
+│       ├── api/                # Main API module
+│       │   ├── cli/            # Command-line interface
+│       │   │   ├── __init__.py
+│       │   │   └── commands.py # API CLI commands
+│       │   ├── __init__.py
+│       │   ├── app.py          # FastAPI application instance
+│       │   ├── services.py     # API service (Uvicorn runner)
+│       │   └── settings.py     # API configuration settings
 │       └── traffic/            # Traffic analysis module
-│           ├── api/            # FastAPI endpoints
-│           │   ├── endpoints.py
-│           │   └── dependencies.py
+│           ├── api/            # Traffic-specific endpoints
+│           │   ├── __init__.py
+│           │   ├── endpoints.py # REST API routes
+│           │   └── dependencies.py # Dependency injection
+│           ├── cli/            # Traffic CLI commands
+│           │   ├── __init__.py
+│           │   └── commands.py # Traffic CLI operations
+│           ├── __init__.py
+│           ├── errors.py       # Traffic-specific exceptions
 │           ├── models.py       # Data models and enums
-│           └── services.py     # Business logic
-│           └── settings.py     # Traffic service settings
+│           ├── services.py     # Business logic and database operations
+│           └── settings.py     # Traffic service configuration
 ├── scripts/
-│   └── load.sh                 # Data loading utilities
+│   └── load.sh                 # Data loading and ETL utilities
 ├── notebooks/                  # Jupyter analysis notebooks
-├── data/                       # Raw data files
-├── justfile                    # Task runner commands
-└── pyproject.toml              # Project dependencies
+│   └── links.ipynb            # Traffic data visualization example
+├── data/                       # Raw data files (.parquet.gz)
+├── temp/                       # Temporary output files
+├── docs/
+│   └── images/                 # Documentation assets
+│       └── architecture.png    # System architecture diagram
+├── .env                        # Environment variables (not in git)
+├── .env.example               # Environment template
+├── .gitignore                 # Git ignore rules
+├── justfile                   # Task runner commands
+├── pyproject.toml             # Project dependencies and metadata
+└── README.md                  # This file
 ```
 
 ## 🛠️ Quick Start
 
 ### Prerequisites
 
-- **Dev Container**: VS Code with Remote-Containers extension (recommended)
-- **Local Setup**: Python 3.11+, PostgreSQL with PostGIS
+#### For Dev Container (Recommended)
+- **Docker Desktop**: Required for dev container support
+- **VS Code**: With Remote-Containers extension
+- **Git**: For cloning the repository
+
+#### For Local Development
+- **Python 3.11+**: Managed via pyenv (recommended)
+- **pyenv**: For Python version management
+- **just**: Command runner for project tasks
+- **PostgreSQL**: With PostGIS extension
+- **Docker Desktop**: Optional, for containerized database
+
+#### Installation Commands (Ubuntu 22.04.5 LTS)
+
+```bash
+# Install just (command runner)
+curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to ~/.local/bin
+echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
+source ~/.bashrc
+
+# Install pyenv for Python version management
+curl https://pyenv.run | bash
+echo 'export PYENV_ROOT="$HOME/.pyenv"' >> ~/.bashrc
+echo 'command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"' >> ~/.bashrc
+echo 'eval "$(pyenv init -)"' >> ~/.bashrc
+source ~/.bashrc
+
+# Install Python 3.11 via pyenv
+pyenv install 3.11.10
+pyenv global 3.11.10
+
+# Install Docker Desktop (follow official instructions)
+# https://docs.docker.com/desktop/install/ubuntu/
+```
+
+> [!NOTE]
+> **Why these tools?**
+> - **just**: Task runner that simplifies common development commands (like make, but better)
+> - **pyenv**: Ensures consistent Python version across environments
+> - **Docker Desktop**: Provides containerized PostgreSQL/PostGIS for development
 
 ### Option 1: Dev Container (Recommended)
 
