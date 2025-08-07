@@ -14,6 +14,7 @@ from urban_sdk_homework.core.services import Service
 from urban_sdk_homework.modules.traffic.models import Aggregate
 from urban_sdk_homework.modules.traffic.models import Link
 from urban_sdk_homework.modules.traffic.models import SpeedRecord
+from urban_sdk_homework.modules.traffic.settings import TrafficServiceSettings
 
 # Note to the Future: If we ever want to implement multi-tenancy, we can
 # uncomment the tenant parameter and pass it to the service.
@@ -45,9 +46,10 @@ class TrafficService(Service):
 
     def __init__(self):
         """Create a new instance."""
+        self._settings = TrafficServiceSettings()
         self._engine = create_engine(
-            "postgresql://postgres:postgres@host.docker.internal:5432/urbansdk",  # TODO: Move to .env.  # noqa
-            echo=True,
+            self._settings.sqa_conn,
+            echo=True,  # TODO: Move to .env.
         )
         SQLModel.metadata.create_all(self._engine)
 

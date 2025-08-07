@@ -35,6 +35,7 @@ for router in APIRouter.instances(condition=lambda r: r.enabled):
 
 
 @app.get("/", include_in_schema=False)
+@app.get("/docs", include_in_schema=False)
 async def root():
     """Redirect to OpenAPI documentation."""
     return RedirectResponse(url="/openapi")

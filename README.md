@@ -1,6 +1,10 @@
 # Urban SDK Homework
+Built with ❤️ for Urban SDK by Pat Blair.
 
-A FastAPI-based traffic data analysis service that provides REST APIs for querying and visualizing aggregated traffic speed data on road networks. Built with PostgreSQL + PostGIS for spatial data operations.
+A FastAPI-based traffic data analysis service that provides REST APIs for 
+querying and visualizing aggregated traffic speed data on road networks. Built
+with PostgreSQL + PostGIS for spatial data operations.
+
 
 ## 🚀 Features
 
@@ -28,6 +32,7 @@ urban-sdk-homework/
 │           │   └── dependencies.py
 │           ├── models.py       # Data models and enums
 │           └── services.py     # Business logic
+│           └── settings.py     # Traffic service settings
 ├── scripts/
 │   └── load.sh                 # Data loading utilities
 ├── notebooks/                  # Jupyter analysis notebooks
@@ -79,7 +84,17 @@ urban-sdk-homework/
    # Edit .env with your PostgreSQL connection details
    ```
 
+   ```bash
+   urban_sdk_homework__traffic__sqa_conn="postgresql://postgres:postgres@localhost:5432/urbansdk"
+   ```
+
 3. **Load sample data** (if available):
+
+   Copy [duval_jan1_2024.parquet.gz](https://cdn.urbansdk.com/data-engineering-interview/link_info.parquet.gz)
+   [link_info.parquet.gz](https://cdn.urbansdk.com/data-engineering-interview/duval_jan1_2024.parquet.gz) 
+   into the `data` directory and run the `load.sh` script to load and ETL the
+   data.
+
    ```bash
    ./scripts/load.sh
    ```
@@ -114,10 +129,10 @@ GET /link/{link_id}
 #### Traffic Aggregates
 ```bash
 # Get aggregates by day and period
-GET /aggregates/?day=2&period=3
+GET /aggregates/?day=Monday&period=Evening
 
 # Get aggregates for specific link
-GET /aggregates/{link_id}?day=2&period=3
+GET /aggregates/{link_id}?day=Monday&period=Evening
 
 # Spatial filtering with bounding box
 POST /aggregates/spatial_filter/
@@ -249,9 +264,6 @@ PGDATABASE=urbansdk
 PGUSER=postgres
 PGPASSWORD=postgres
 
-# Optional: Mapbox token for advanced visualizations
-MAPBOX_TOKEN=your_mapbox_token_here
-
 # Development
 DEV_CONTAINER=1      # Set to 1 in dev container, 0 for local
 BROWSER=google-chrome # Or your preferred browser command
@@ -298,14 +310,10 @@ Compatible with standard GIS tools and web mapping libraries.
 
 ## 📄 License
 
-[Specify your license here]
+[TBD]
 
 ## 🆘 Support
 
 - **Issues**: [GitHub Issues](link-to-issues)
 - **Documentation**: See `/openapi` endpoint when running
 - **Dev Container**: Pre-configured with all dependencies
-
----
-
-Built with ❤️ for urban sdk
