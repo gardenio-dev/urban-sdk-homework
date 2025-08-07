@@ -5,6 +5,9 @@ A FastAPI-based traffic data analysis service that provides REST APIs for
 querying and visualizing aggregated traffic speed data on road networks. Built
 with PostgreSQL + PostGIS for spatial data operations.
 
+The project was built to address the requirements of the homework assignment,
+but I'm also attempting to address issues like maintainable project structure.
+
 > [!WARNING]
 > This project was created to demonstrate the my understanding of application
 > development in general, and geospatial applications in particular, using 
