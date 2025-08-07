@@ -248,10 +248,42 @@ GET /aggregates/{link_id}?day=Monday&period=Evening
 POST /aggregates/spatial_filter/
 Content-Type: application/json
 {
-  "day": 2,
-  "period": 3,
+  "day": "Monday",
+  "period": "Evening",
   "bbox": [-81.8, 30.1, -81.6, 30.3]
 }
+```
+
+#### Traffic Patterns
+```bash
+# Get consistently slow links
+GET /patterns/slow_links/?period=AM%20Peak&threshold=25.0&min_days=3
+
+# Example with curl
+curl "http://localhost:8000/patterns/slow_links/?period=AM%20Peak&threshold=25.0&min_days=3" \
+  -H "Accept: application/json"
+```
+
+### Example Requests
+
+```bash
+# Get Monday evening traffic data
+curl "http://localhost:8000/aggregates/?day=Monday&period=Evening"
+
+# Get specific link details
+curl "http://localhost:8000/link/1240632857"
+
+# Find links consistently slow during AM Peak (< 25 mph for 3+ days)
+curl "http://localhost:8000/patterns/slow_links/?period=AM%20Peak&threshold=25.0&min_days=3"
+
+# Spatial filtering with bounding box
+curl -X POST "http://localhost:8000/aggregates/spatial_filter/" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "day": "Monday",
+    "period": "Evening",
+    "bbox": [-81.8, 30.1, -81.6, 30.3]
+  }'
 ```
 
 ### Data Formats
