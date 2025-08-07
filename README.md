@@ -329,6 +329,16 @@ Compatible with standard GIS tools and web mapping libraries.
 
 [TBD]
 
+## 🏗️ System Architecture
+
+![System Architecture](docs/images/architecture.png)
+
+The system follows a layered architecture with:
+- **Presentation Layer**: Jupyter Labs for visualization and analysis
+- **API Layer**: FastAPI service providing REST endpoints
+- **Business Logic**: Traffic service components
+- **Data Layer**: PostgreSQL with PostGIS for spatial operations
+
 ## 🆘 Support
 
 - **Issues**: [GitHub Issues](https://github.com/gardenio-dev/urban-sdk-homework/issues)
