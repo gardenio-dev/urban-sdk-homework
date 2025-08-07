@@ -255,6 +255,9 @@ m
 ## ⚙️ Available Commands
 
 ```bash
+# Service
+homework api start
+
 # Development
 just dev              # Start FastAPI development server
 just setup            # Initial project setup
