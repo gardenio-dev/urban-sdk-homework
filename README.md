@@ -11,6 +11,11 @@ with PostgreSQL + PostGIS for spatial data operations.
 > tools like FastAPI and PostGIS.  The repository will be removed in the 
 > near future.
 
+> [!NOTE]
+> This is a first draft for demonstration.  There are many #TODOs.  Thank you
+> in advance for your patience and understanding.
+
+
 ## 🚧 TODOS
 
 - Add pytest and Gherkin. 
@@ -75,7 +80,7 @@ urban-sdk-homework/
    just setup
    ```
 
-3. **Start development server**:
+3. **Start development container**:
    ```bash
    just dev
    ```
@@ -113,7 +118,7 @@ urban-sdk-homework/
 
 4. **Start the API**:
    ```bash
-   just dev
+   homework api start
    ```
 
 5. **Launch Jupyter for analysis**:
@@ -326,6 +331,6 @@ Compatible with standard GIS tools and web mapping libraries.
 
 ## 🆘 Support
 
-- **Issues**: [GitHub Issues](link-to-issues)
+- **Issues**: [GitHub Issues](https://github.com/gardenio-dev/urban-sdk-homework/issues)
 - **Documentation**: See `/openapi` endpoint when running
 - **Dev Container**: Pre-configured with all dependencies
