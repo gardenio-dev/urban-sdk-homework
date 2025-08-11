@@ -52,12 +52,30 @@ def aggregates(
     period: TimePeriod = Query(
         description="Time period", example="Evening", title="Time Period"
     ),
+    offset: int = Query(
+        default=0,
+        description="Number of results to skip",
+        ge=0,
+        title="Offset",
+    ),
+    limit: int = Query(
+        default=100,
+        description="Maximum number of results to return",
+        ge=1,
+        le=10000,
+        title="Limit",
+    ),
     service=Depends(service),
 ) -> List[Aggregate]:
     """
     Get the aggregated speed per link for the given day and time period.
     """
-    return service.get_aggregates(day=int(day), period=int(period))
+    return service.get_aggregates(
+        day=int(day),
+        period=int(period),
+        offset=offset,
+        limit=limit,
+    )
 
 
 @router.get(

@@ -1,6 +1,7 @@
 from datetime import datetime
 from enum import Enum
 from typing import List
+from typing import Optional
 
 from geoalchemy2 import Geometry
 from pydantic import BaseModel
@@ -10,30 +11,6 @@ from sqlmodel import Field
 from sqlmodel import SQLModel
 
 from urban_sdk_homework.core.geometry import geojson
-
-
-# class DayOfWeek(IntEnum):
-#     """Days of the week for traffic data aggregation."""
-
-#     SUNDAY = 1
-#     MONDAY = 2
-#     TUESDAY = 3
-#     WEDNESDAY = 4
-#     THURSDAY = 5
-#     FRIDAY = 6
-#     SATURDAY = 7
-
-
-# class TimePeriod(IntEnum):
-#     """Time period for traffic data aggregation."""
-
-#     OVERNIGHT = 1
-#     EARLY_MORNING = 2
-#     AM_PEAK = 3
-#     MIDDAY = 4
-#     EARLY_AFTERNOON = 5
-#     PM_PEAK = 6
-#     EVENING = 7
 
 
 class DayOfWeek(str, Enum):
@@ -167,7 +144,8 @@ class Aggregate(BaseModel):
         description="The ID of the link.",
         title="Link ID",
     )
-    road_name: str = Field(
+    road_name: Optional[str] = Field(
+        default=None,
         description="The name of the road to which this link belongs.",
         title="Road Name",
     )
